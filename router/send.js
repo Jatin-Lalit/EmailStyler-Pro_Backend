@@ -1,20 +1,27 @@
+
 const express = require("express");
 const send = express.Router();
 const nodemailer = require('nodemailer');
-
+require('dotenv').config();
 send.post("/send-email", async (req, res) => {
   try {
     const { recipientEmails, sender_email, subject, message, accesstoken } = req.body;
 
     // Create a transporter with your email service settings
-    const transporter = nodemailer.createTransport({
-      service: 'Gmail',
+    let transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
       auth: {
+        type: "OAuth2",
         user: sender_email,
-        pass: accesstoken,
+        
+         accessToken: accesstoken,
       },
+      debug: true,
     });
-
+   
+    
     const successEmails = [];
     const failedEmails = [];
 
@@ -27,6 +34,7 @@ send.post("/send-email", async (req, res) => {
         to: trimmedRecipient,
         subject: subject,
         html: message,
+        // priority: 'high'
       };
 
       try {
@@ -65,8 +73,6 @@ async function sendEmailWithNodemailer(transporter, mailOptions) {
   });
 }
 
-
-
-module.exports={
-    send
-}
+module.exports = {
+  send
+};
